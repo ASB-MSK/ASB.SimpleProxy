@@ -522,6 +522,15 @@ class App(ctk.CTk):
         port_labels = ["Port", "Порт"]
         
         if label_text in ip_labels or label_text in port_labels:
+            # Add keyboard shortcuts for Russian layout
+            # Ctrl+C (copy) in Russian layout is Ctrl+с (Cyrillic_es)
+            # Ctrl+V (paste) in Russian layout is Ctrl+м (Cyrillic_em)
+            try:
+                entry.bind("<Control-Cyrillic_es>", lambda e: entry.event_generate("<<Copy>>"))
+                entry.bind("<Control-Cyrillic_em>", lambda e: entry.event_generate("<<Paste>>"))
+            except:
+                pass
+            
             # Create context menu with paste option that handles keyboard layout
             context_menu = ctk.CTkFrame(self, fg_color="#333333")
             
