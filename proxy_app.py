@@ -522,10 +522,13 @@ class App(ctk.CTk):
         port_labels = ["Port", "Порт"]
         
         if label_text in ip_labels or label_text in port_labels:
-            # Add keyboard shortcuts using physical keycodes (works in any layout)
+            # Add keyboard shortcuts for copy/paste that work in any layout
             try:
-                # Ctrl+C (copy) - physical key code 67
-                entry.bind('<Control-KeyPress-67>', lambda e: entry.event_generate('<<Copy>>'))
+                def do_copy():
+                    try:
+                        entry.event_generate('<<Copy>>')
+                    except Exception as e:
+                        print(f"Copy error: {e}")
                 
                 def do_paste():
                     # Get clipboard and transliterate if needed
@@ -545,8 +548,22 @@ class App(ctk.CTk):
                     except Exception as e:
                         print(f"Paste error: {e}")
                 
-                # Ctrl+V (paste) - physical key code 86
-                entry.bind('<Control-KeyPress-86>', lambda e: do_paste())
+                # Multiple bindings to support different keyboard layouts
+                # English layout bindings
+                entry.bind('<Control-c>', lambda e: do_copy())
+                entry.bind('<Control-C>', lambda e: do_copy())
+                entry.bind('<Control-v>', lambda e: do_paste())
+                entry.bind('<Control-V>', lambda e: do_paste())
+                
+                # Russian layout bindings (where 'c' is 'с' and 'v' is 'м')
+                entry.bind('<Control-с>', lambda e: do_copy())
+                entry.bind('<Control-С>', lambda e: do_copy())
+                entry.bind('<Control-м>', lambda e: do_paste())
+                entry.bind('<Control-М>', lambda e: do_paste())
+                
+                # Also keep physical keycode bindings as fallback
+                entry.bind('<Control-KeyPress-67>', lambda e: do_copy())  # Ctrl+C
+                entry.bind('<Control-KeyPress-86>', lambda e: do_paste())  # Ctrl+V
             except Exception as e:
                 print(f"Binding error: {e}")
             
