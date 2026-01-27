@@ -1,4 +1,4 @@
-# SimpleProxyASB
+# ASB SimpleProxy
 
 A simple and powerful Windows proxy manager application with support for HTTP/HTTPS proxies, authentication handling, and multilingual interface (English/Russian).
 

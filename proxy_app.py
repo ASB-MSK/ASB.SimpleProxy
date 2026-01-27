@@ -1,5 +1,5 @@
 import customtkinter as ctk
-print("Starting SimpleProxyASB...")
+print("Starting ASB SimpleProxy...")
 import logging
 import sys
 
@@ -33,7 +33,7 @@ def transliterate_layout(text):
 # Language translations
 LANGUAGES = {
     'en': {
-        'app_title': 'SimpleProxyASB - Proxy Manager',
+        'app_title': 'ASB SimpleProxy - Proxy Manager',
         'ip_address': 'IP Address',
         'port': 'Port',
         'username': 'Username',
@@ -53,7 +53,7 @@ LANGUAGES = {
         'settings_saved': 'Settings saved',
     },
     'ru': {
-        'app_title': 'SimpleProxyASB - Менеджер прокси',
+        'app_title': 'ASB SimpleProxy - Менеджер прокси',
         'ip_address': 'IP адрес',
         'port': 'Порт',
         'username': 'Логин',
@@ -455,7 +455,7 @@ class App(ctk.CTk):
         self.btn_lang.grid(row=0, column=0, padx=(140, 0), pady=(20, 0), sticky="e")
         
         # Header
-        self.lbl_title = ctk.CTkLabel(self, text="SimpleProxyASB", font=("Roboto Medium", 20))
+        self.lbl_title = ctk.CTkLabel(self, text="ASB SimpleProxy", font=("Roboto Medium", 20))
         self.lbl_title.grid(row=0, column=0, pady=(20, 0))
 
         # Inputs
@@ -720,7 +720,7 @@ class App(ctk.CTk):
         self.grid_rowconfigure(12, weight=1)
         
         # Header
-        self.lbl_title = ctk.CTkLabel(self, text="SimpleProxyASB", font=("Roboto Medium", 20))
+        self.lbl_title = ctk.CTkLabel(self, text="ASB SimpleProxy", font=("Roboto Medium", 20))
         self.lbl_title.grid(row=0, column=0, pady=(20, 0))
         
         # Language button with inverted colors
