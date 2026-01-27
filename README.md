@@ -24,8 +24,8 @@ A simple and powerful Windows proxy manager application with support for HTTP/HT
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/ASB-MSK/SimpleProxyASB.git
-cd SimpleProxyASB
+git clone https://github.com/ASB-MSK/ASB.SimpleProxy.git
+cd ASB.SimpleProxy
 ```
 
 2. Install dependencies:
@@ -40,16 +40,16 @@ python proxy_app.py
 
 ### Portable Version
 
-Download the portable version from the [releases page](https://github.com/ASB-MSK/SimpleProxyASB/releases):
+Download the portable version from the [releases page](https://github.com/ASB-MSK/ASB.SimpleProxy/releases):
 - Extract the ZIP file
-- Run `SimpleProxyASB.exe`
+- Run `ASB SimpleProxy.exe`
 
 ## Building from Source
 
 To create a portable version:
 
 ```bash
-pyinstaller --onefile --windowed --name SimpleProxyASB proxy_app.py
+pyinstaller --onefile --windowed --name "ASB SimpleProxy" proxy_app.py
 ```
 
 The executable will be in the `dist/` folder.

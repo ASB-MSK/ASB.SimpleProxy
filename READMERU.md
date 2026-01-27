@@ -24,8 +24,8 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/ASB-MSK/SimpleProxyASB.git
-cd SimpleProxyASB
+git clone https://github.com/ASB-MSK/ASB.SimpleProxy.git
+cd ASB.SimpleProxy
 ```
 
 2. Установите зависимости:
@@ -40,7 +40,7 @@ python proxy_app.py
 
 ### Portable версия
 
-Скачайте portable версию со страницы [релизов](https://github.com/ASB-MSK/SimpleProxyASB/releases):
+Скачайте portable версию со страницы [релизов](https://github.com/ASB-MSK/ASB.SimpleProxy/releases):
 - Распакуйте ZIP архив
 - Запустите `ASB SimpleProxy.exe`
 
