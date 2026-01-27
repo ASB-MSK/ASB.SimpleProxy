@@ -522,19 +522,38 @@ class App(ctk.CTk):
         port_labels = ["Port", "Порт"]
         
         if label_text in ip_labels or label_text in port_labels:
-            # Add keyboard shortcuts for Russian layout
-            # Ctrl+C (copy) in Russian layout is Ctrl+с (Cyrillic_es)
-            # Ctrl+V (paste) in Russian layout is Ctrl+м (Cyrillic_em)
+            # Add keyboard shortcuts using physical keycodes (works in any layout)
             try:
-                entry.bind("<Control-Cyrillic_es>", lambda e: entry.event_generate("<<Copy>>"))
-                entry.bind("<Control-Cyrillic_em>", lambda e: entry.event_generate("<<Paste>>"))
-            except:
-                pass
+                # Ctrl+C (copy) - physical key code 67
+                entry.bind('<Control-KeyPress-67>', lambda e: entry.event_generate('<<Copy>>'))
+                
+                def do_paste():
+                    # Get clipboard and transliterate if needed
+                    try:
+                        clipboard = self.clipboard_get()
+                        # For IP and Port fields, we don't need transliteration
+                        # since we're dealing with numbers and dots
+                        # But we'll keep it for compatibility with other input types
+                        transliterated = transliterate_layout(clipboard)
+                        # Delete selected text if any
+                        try:
+                            entry.delete(entry.selection_get())
+                        except:
+                            pass
+                        # Insert transliterated text
+                        entry.insert("insert", transliterated)
+                    except Exception as e:
+                        print(f"Paste error: {e}")
+                
+                # Ctrl+V (paste) - physical key code 86
+                entry.bind('<Control-KeyPress-86>', lambda e: do_paste())
+            except Exception as e:
+                print(f"Binding error: {e}")
             
             # Create context menu with paste option that handles keyboard layout
             context_menu = ctk.CTkFrame(self, fg_color="#333333")
             
-            def do_paste():
+            def do_paste_menu():
                 # Get clipboard and transliterate if needed
                 try:
                     clipboard = self.clipboard_get()
@@ -552,7 +571,7 @@ class App(ctk.CTk):
             # Create paste button with proper translation
             paste_text = "Paste" if self.language == 'en' else "Вставить"
             paste_btn = ctk.CTkButton(context_menu, text=paste_text, width=100, height=30, 
-                                       command=do_paste)
+                                       command=do_paste_menu)
             paste_btn.pack(padx=5, pady=5)
             
             def show_context_menu(event):
