@@ -522,99 +522,115 @@ class App(ctk.CTk):
         port_labels = ["Port", "Порт"]
         
         if label_text in ip_labels or label_text in port_labels:
-            # Add keyboard shortcuts for copy/paste that work in any layout
-            try:
-                def do_copy():
-                    try:
-                        entry.event_generate('<<Copy>>')
-                    except Exception as e:
-                        print(f"Copy error: {e}")
-                
-                def do_paste():
-                    # Get clipboard and transliterate if needed
-                    try:
-                        clipboard = self.clipboard_get()
-                        # For IP and Port fields, we don't need transliteration
-                        # since we're dealing with numbers and dots
-                        # But we'll keep it for compatibility with other input types
-                        transliterated = transliterate_layout(clipboard)
-                        # Delete selected text if any
-                        try:
-                            entry.delete(entry.selection_get())
-                        except:
-                            pass
-                        # Insert transliterated text
-                        entry.insert("insert", transliterated)
-                    except Exception as e:
-                        print(f"Paste error: {e}")
-                
-                # Multiple bindings to support different keyboard layouts
-                # English layout bindings
-                entry.bind('<Control-c>', lambda e: do_copy())
-                entry.bind('<Control-C>', lambda e: do_copy())
-                entry.bind('<Control-v>', lambda e: do_paste())
-                entry.bind('<Control-V>', lambda e: do_paste())
-                
-                # Russian layout bindings (where 'c' is 'с' and 'v' is 'м')
-                entry.bind('<Control-с>', lambda e: do_copy())
-                entry.bind('<Control-С>', lambda e: do_copy())
-                entry.bind('<Control-м>', lambda e: do_paste())
-                entry.bind('<Control-М>', lambda e: do_paste())
-                
-                # Also keep physical keycode bindings as fallback
-                entry.bind('<Control-KeyPress-67>', lambda e: do_copy())  # Ctrl+C
-                entry.bind('<Control-KeyPress-86>', lambda e: do_paste())  # Ctrl+V
-            except Exception as e:
-                print(f"Binding error: {e}")
             
-            # Create context menu with paste option that handles keyboard layout
+            def setup_entry_bindings(entry_widget):
+                """Setup copy/paste bindings that work with any keyboard layout."""
+                
+                def do_copy(event=None):
+                    """Copy selected text to clipboard."""
+                    try:
+                        entry_widget.event_generate('<<Copy>>')
+                        return "break"
+                    except Exception as e:
+                        logging.debug(f"Copy error: {e}")
+                        return "break"
+                
+                def do_paste(event=None):
+                    """Paste text from clipboard with layout correction."""
+                    try:
+                        clipboard = entry_widget.clipboard_get()
+                        transliterated = transliterate_layout(clipboard)
+                        
+                        # Delete selected text if any (using correct indices)
+                        try:
+                            entry_widget.delete("sel.first", "sel.last")
+                        except Exception:
+                            pass
+                        
+                        entry_widget.insert("insert", transliterated)
+                        return "break"
+                    except Exception as e:
+                        logging.debug(f"Paste error: {e}")
+                        return "break"
+                
+                def do_cut(event=None):
+                    """Cut selected text to clipboard."""
+                    try:
+                        entry_widget.event_generate('<<Cut>>')
+                        return "break"
+                    except Exception as e:
+                        logging.debug(f"Cut error: {e}")
+                        return "break"
+                
+                def do_select_all(event=None):
+                    """Select all text in entry."""
+                    try:
+                        entry_widget.select_range(0, "end")
+                        entry_widget.icursor("end")
+                        return "break"
+                    except Exception as e:
+                        logging.debug(f"Select all error: {e}")
+                        return "break"
+                
+                def on_key_press(event):
+                    """Handle key press events for layout-independent shortcuts."""
+                    if event.state & 0x4:  # Control key mask
+                        if event.keycode in (86, 118):  # V key
+                            return do_paste(event)
+                        elif event.keycode in (67, 99):  # C key
+                            return do_copy(event)
+                        elif event.keycode in (88, 120):  # X key
+                            return do_cut(event)
+                        elif event.keycode in (65, 97):  # A key
+                            return do_select_all(event)
+                    return None
+                
+                # Primary: keycode-based handling (works with any layout)
+                entry_widget.bind('<KeyPress>', on_key_press)
+                
+                # Fallback: standard bindings
+                entry_widget.bind('<Control-v>', do_paste)
+                entry_widget.bind('<Control-V>', do_paste)
+                entry_widget.bind('<Control-c>', do_copy)
+                entry_widget.bind('<Control-C>', do_copy)
+                entry_widget.bind('<Control-x>', do_cut)
+                entry_widget.bind('<Control-X>', do_cut)
+                entry_widget.bind('<Control-a>', do_select_all)
+                entry_widget.bind('<Control-A>', do_select_all)
+            
+            setup_entry_bindings(entry)
+            
+            # Context menu
             context_menu = ctk.CTkFrame(self, fg_color="#333333")
             
             def do_paste_menu():
-                # Get clipboard and transliterate if needed
                 try:
                     clipboard = self.clipboard_get()
                     transliterated = transliterate_layout(clipboard)
-                    # Delete selected text if any
                     try:
-                        entry.delete(entry.selection_get())
+                        entry.delete("sel.first", "sel.last")
                     except:
                         pass
-                    # Insert transliterated text
                     entry.insert("insert", transliterated)
-                except:
-                    pass
+                except Exception as e:
+                    logging.debug(f"Menu paste error: {e}")
             
-            # Create paste button with proper translation
             paste_text = "Paste" if self.language == 'en' else "Вставить"
-            paste_btn = ctk.CTkButton(context_menu, text=paste_text, width=100, height=30, 
+            paste_btn = ctk.CTkButton(context_menu, text=paste_text, width=100, height=30,  
                                        command=do_paste_menu)
             paste_btn.pack(padx=5, pady=5)
             
             def show_context_menu(event):
                 try:
-                    # Update paste button text based on current language
                     paste_btn.configure(text="Paste" if self.language == 'en' else "Вставить")
-                    context_menu.place(x=event.x_root - self.winfo_rootx(), 
+                    context_menu.place(x=event.x_root - self.winfo_rootx(),  
                                       y=event.y_root - self.winfo_rooty())
                     entry.focus_set()
                     self.after(3000, lambda: context_menu.place_forget())
-                except:
-                    pass
+                except Exception as e:
+                    logging.debug(f"Context menu error: {e}")
             
             entry.bind("<Button-3>", show_context_menu)
-        
-        def _handle_paste(entry_widget):
-            try:
-                clipboard = self.clipboard_get()
-                transliterated = transliterate_layout(clipboard)
-                try:
-                    entry_widget.delete(entry_widget.selection_get())
-                except:
-                    pass
-                entry_widget.insert("insert", transliterated)
-            except:
-                pass
         
         return entry
 
