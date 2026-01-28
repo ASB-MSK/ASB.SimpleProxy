@@ -38,7 +38,6 @@ LANGUAGES = {
         'port': 'Port',
         'username': 'Username',
         'password': 'Password',
-        'proxy_type': 'Proxy Type',
         'connect': 'Connect',
         'disconnect': 'Disconnect',
         'status_disconnected': 'Status: Disconnected',
@@ -58,7 +57,6 @@ LANGUAGES = {
         'port': 'Порт',
         'username': 'Логин',
         'password': 'Пароль',
-        'proxy_type': 'Тип прокси',
         'connect': 'Подключить',
         'disconnect': 'Отключить',
         'status_disconnected': 'Статус: Отключено',
@@ -479,12 +477,6 @@ class App(ctk.CTk):
         self.entry_user = self.create_input(LANGUAGES[self.language]['username'], "", 3)
         self.entry_pass = self.create_input(LANGUAGES[self.language]['password'], "", 4, show="*")
 
-        # Proxy Type (Dropdown)
-        self.lbl_type = ctk.CTkLabel(self, text=LANGUAGES[self.language]['proxy_type'], anchor="w")
-        self.lbl_type.grid(row=9, column=0, padx=30, pady=(5, 0), sticky="w")
-        self.opt_type = ctk.CTkOptionMenu(self, values=["HTTPS", "HTTP"])
-        self.opt_type.grid(row=10, column=0, padx=30, pady=(0, 20), sticky="ew")
-
         # Buttons Frame
         self.frm_buttons = ctk.CTkFrame(self, fg_color="transparent")
         self.frm_buttons.grid(row=11, column=0, padx=30, pady=20, sticky="ew")
@@ -694,7 +686,6 @@ class App(ctk.CTk):
 
         ip = self.entry_ip.get().strip()
         port = self.entry_port.get().strip()
-        proxy_type = self.opt_type.get().lower()  # Get the selected proxy type
         user = self.entry_user.get().strip()
         password = self.entry_pass.get().strip()
         
@@ -717,7 +708,7 @@ class App(ctk.CTk):
             success, msg = ProxyManager.set_registry_proxy('127.0.0.1', str(self.local_tunnel.local_port), enabled=True)
             
             # Update status to connecting
-            self.update_status(f"{LANGUAGES[self.language]['status_connecting']} {proxy_type.upper()} {ip}:{port}...", connected=False)
+            self.update_status(f"{LANGUAGES[self.language]['status_connecting']} {ip}:{port}...", connected=False)
             
             # Start periodic check for authentication errors
             self._check_auth_error()
@@ -740,9 +731,9 @@ class App(ctk.CTk):
         ProxyManager.refresh_system()
 
         if user and password:
-            self.update_status(f"{LANGUAGES[self.language]['status_connected']} via local tunnel to {proxy_type.upper()} {ip}:{port}", connected=True)
+            self.update_status(f"{LANGUAGES[self.language]['status_connected']} via local tunnel to {ip}:{port}", connected=True)
         else:
-            self.update_status(f"{LANGUAGES[self.language]['status_connected']} to {proxy_type.upper()} {ip}:{port}", connected=True)
+            self.update_status(f"{LANGUAGES[self.language]['status_connected']} to {ip}:{port}", connected=True)
 
     def _check_auth_error(self):
         """Periodically check for authentication errors."""
@@ -793,7 +784,6 @@ class App(ctk.CTk):
         port_value = self.entry_port.get()
         user_value = self.entry_user.get()
         pass_value = self.entry_pass.get()
-        proxy_type = self.opt_type.get()
         
         # Get current connection status
         is_connected = self.local_tunnel is not None
@@ -835,13 +825,6 @@ class App(ctk.CTk):
         if pass_value:
             self.entry_pass.insert(0, pass_value)
         
-        # Proxy Type
-        self.lbl_type = ctk.CTkLabel(self, text=LANGUAGES[self.language]['proxy_type'], anchor="w")
-        self.lbl_type.grid(row=9, column=0, padx=30, pady=(5, 0), sticky="w")
-        self.opt_type = ctk.CTkOptionMenu(self, values=["HTTPS", "HTTP"])
-        self.opt_type.set(proxy_type)
-        self.opt_type.grid(row=10, column=0, padx=30, pady=(0, 20), sticky="ew")
-        
         # Buttons Frame
         self.frm_buttons = ctk.CTkFrame(self, fg_color="transparent")
         self.frm_buttons.grid(row=11, column=0, padx=30, pady=(10, 0), sticky="ew")
@@ -868,8 +851,7 @@ class App(ctk.CTk):
         if is_connected:
             ip = self.entry_ip.get().strip()
             port = self.entry_port.get().strip()
-            proxy_type_lower = self.opt_type.get().lower()
-            self.lbl_status.configure(text=f"{LANGUAGES[self.language]['status_connected']} to {proxy_type_lower.upper()} {ip}:{port}")
+            self.lbl_status.configure(text=f"{LANGUAGES[self.language]['status_connected']} to {ip}:{port}")
         
         # Re-enable window
         self.state('normal')
