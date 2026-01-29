@@ -444,19 +444,7 @@ class App(ctk.CTk):
         self.resizable(False, False)
         
         # Set application icon
-        try:
-            import os
-            icon_path = os.path.join(os.path.dirname(__file__), 'app_icon.png')
-            if os.path.exists(icon_path):
-                from PIL import Image, ImageTk
-                icon_image = Image.open(icon_path)
-                icon_photo = ImageTk.PhotoImage(icon_image)
-                self.iconphoto(True, icon_photo)
-            # Fallback to ICO if PNG fails
-            elif os.path.exists(os.path.join(os.path.dirname(__file__), 'app_icon.ico')):
-                self.iconbitmap(os.path.join(os.path.dirname(__file__), 'app_icon.ico'))
-        except Exception as e:
-            logging.debug(f"Icon error: {e}")
+        self.set_icon()
         
         # Grid config
         self.grid_columnconfigure(0, weight=1)
@@ -772,6 +760,27 @@ class App(ctk.CTk):
 
         self.update_status(LANGUAGES[self.language]['status_disconnected'], connected=False)
 
+    def set_icon(self):
+        """Устанавливает иконку для окна приложения."""
+        try:
+            # Для собранного exe
+            if getattr(sys, 'frozen', False):
+                # PyInstaller создаёт временную папку
+                base_path = sys._MEIPASS
+            else:
+                # Обычный запуск
+                base_path = os.path.dirname(os.path.abspath(__file__))
+            
+            icon_path = os.path.join(base_path, "app_icon.ico")
+            
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+                logging.debug(f"Icon loaded: {icon_path}")
+            else:
+                logging.debug(f"Icon not found: {icon_path}")
+        except Exception as e:
+            logging.debug(f"Could not set icon: {e}")
+    
     def toggle_language(self):
         """Toggle between English and Russian languages."""
         self.language = 'ru' if self.language == 'en' else 'en'
